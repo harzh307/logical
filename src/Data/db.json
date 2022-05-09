@@ -1,0 +1,30 @@
+{
+  "todo": [
+    {
+      "id": 1,
+      "text": "new arrat",
+      "completed": true
+    },
+    {
+      "id": 3,
+      "text": "ede",
+      "completed": false
+    },
+    {
+      "id": 4,
+      "text": "ADFDF",
+      "completed": true
+    },
+    {
+      "id": 5,
+      "text": "DFSVASVASV",
+      "completed": false
+    },
+    {
+      "id": 6,
+      "text": "NEWinini",
+      "completed": true
+    }
+  ],
+  "users": []
+}
