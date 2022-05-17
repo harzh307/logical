@@ -1,87 +1,93 @@
-import React, { useEffect, useState } from "react";
-
+import React, { useEffect, useState, memo } from "react";
+import axios from "../axios/axios";
 const Users = () => {
   const [data, setData] = useState();
-  const [filterArray, setFilterArray] = useState();
   const [id, setId] = useState(0);
+  const [filterArray, setFilterArray] = useState(data);
+
+  const getData = async () => {
+    const response = await axios.get("/users");
+    setData(response?.data);
+  };
+
+  const categories = [
+    "All",
+    ...new Set(data?.map((product) => product?.category)),
+  ];
+  console.log(categories, "categories");
+  console.log(data);
   useEffect(() => {
     getData();
     return () => {};
   }, []);
 
-  const categories = [
-    "All",
-    ...new Set(data?.products?.map((x) => x.category)),
-  ];
-  const getData = async () => {
-    const response = await fetch("https://dummyjson.com/products");
-    const responseData = await response.json();
-    setData(responseData);
-    setFilterArray(responseData?.products);
-    console.log(response, "response");
-  };
-
-  const onRadioClick = (i, category) => {
-    setId(i);
-    if (i === 0) {
-      setFilterArray(data?.products);
+  const radioClick = (index, c) => {
+    setId(index);
+    if (index === 0) {
+      setFilterArray(data.filter((x) => x));
     } else {
-      setFilterArray(data?.products?.filter((x) => x.category === category));
+      setFilterArray(data.filter((x) => x.category === c));
     }
   };
-  console.log(data, "<===>", filterArray);
+  
+  console.log(id, "index");
+
+  const deleteUser = (id) => {
+    axios
+      .delete(`/users/${id}`)
+      .then((res) => {
+        setData(data.filter((x) => x.id !== id));
+      })
+      .catch((err) => console.log(err));
+  };
 
   return (
     <div>
-      {categories.map((x, i) => {
-        return categories[1] === undefined ? (
-          <div>No data</div>
-        ) : (
-          <div key={i}>
-            <span>{x}</span>
+      <h1>Users</h1>
+      {categories.map((category, i) => {
+        return (
+          <>
             <input
-              type="radio"
-              onChange={(e) => console.log(e.nativeEvent.target.value, "e")}
+              onClick={() => radioClick(i, category)}
               checked={id === i}
-              onClick={() => onRadioClick(i, x)}
+              // onChange={(e) => console.log(e, "event")}
+              type={"radio"}
             />
+            <label>{category}</label>
+          </>
+        );
+      })}
+      {filterArray?.map((user) => {
+        return (
+          <div
+            key={user.id}
+            style={{
+              display: "flex",
+              gap: 10,
+              margin: "10px 0px",
+              backgroundColor: "lightgray",
+              padding: "10px",
+              justifyContent: "space-between",
+              alignitems: "center",
+              borderRadius: "10px",
+            }}
+          >
+            <span>{user?.title}</span>
+            <button
+              onClick={() => deleteUser(user?.id)}
+              style={{
+                backgroundColor: "Highlight",
+                padding: "5px",
+                borderRadius: 5,
+              }}
+            >
+              Delete
+            </button>
           </div>
         );
       })}
-      {data?.products?.[0].title === undefined ? (
-        <div> No data available</div>
-      ) : (
-        filterArray?.map((x) => {
-          return (
-            <div
-              key={x.id}
-              style={{
-                display: "flex",
-                gap: 10,
-                margin: "10px 0px",
-                backgroundColor: "lightgray",
-                padding: "10px",
-                justifyContent: "space-between",
-                alignitems: "center",
-                borderRadius: "10px",
-              }}
-            >
-              <span>{x?.title}</span>
-              <button
-                style={{
-                  backgroundColor: "Highlight",
-                  padding: "5px",
-                  borderRadius: 5,
-                }}
-              >
-                Delete
-              </button>
-            </div>
-          );
-        })
-      )}
     </div>
   );
 };
 
-export default Users;
+export default memo(Users);
